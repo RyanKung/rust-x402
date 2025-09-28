@@ -1,6 +1,6 @@
 [package]
 name = "rust-x402"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "HTTP-native micropayments with x402 protocol"
 authors = ["Ryan Kung <ryan@example.com>"]
