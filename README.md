@@ -8,6 +8,7 @@
 [![Documentation](https://docs.rs/x402/badge.svg)](https://docs.rs/x402)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
+[![GitHub](https://img.shields.io/github/stars/RyanKung/x402_rs?style=social)](https://github.com/RyanKung/x402_rs)
 
 A **high-performance, type-safe** Rust implementation of the x402 HTTP-native micropayment protocol.
 

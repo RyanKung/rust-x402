@@ -1,0 +1,16 @@
+{
+  "target_url": "https://api.example.com",
+  "amount": 0.01,
+  "pay_to": "0x1234567890123456789012345678901234567890",
+  "description": "API access fee",
+  "mime_type": "application/json",
+  "max_timeout_seconds": 60,
+  "facilitator_url": "https://x402.org/facilitator",
+  "testnet": true,
+  "headers": {
+    "X-Custom-Header": "x402-proxy",
+    "User-Agent": "x402-proxy/1.0"
+  },
+  "cdp_api_key_id": "",
+  "cdp_api_key_secret": ""
+}

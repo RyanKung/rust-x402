@@ -1,149 +1,38 @@
-# Rust build artifacts
+# Rust
 /target/
 **/*.rs.bk
-*.pdb
+Cargo.lock
 
-# Cargo lock file (uncomment if this is a library)
-# Cargo.lock
-
-# IDE and editor files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Temporary files
-*.tmp
-*.temp
+# Logs
 *.log
 
-# Documentation
-/doc/
-
-# Generated documentation
-/target/doc/
-
-# Coverage reports
-tarpaulin-report.html
-coverage/
-
-# Profiling data
-perf.data*
-
-# Example output files
-examples/output/
-examples/*.html
-examples/*.json
-
-# Template demo output
-template_demo_output/
-
-# Test artifacts
-test-results/
-test-output/
-
-# Backup files
-*.bak
-*.backup
-
-# Local configuration
+# Environment
 .env
 .env.local
 .env.*.local
 
-# Node modules (if any frontend tools are used)
-node_modules/
+# Temporary files
+*.tmp
+*.temp
 
-# Python cache (if any Python tools are used)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
+# Coverage
+tarpaulin-report.html
+lcov.info
 
-# Compiled binaries
-*.exe
-*.dll
-*.so
-*.dylib
+# Documentation
+/doc/
 
-# Debug files
-*.pdb
-*.ilk
-*.exp
-
-# IntelliJ
-.idea/
-*.iml
-*.ipr
-*.iws
-
-# Emacs
-*~
-\#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
-.\#*
-
-# Vim
-*.swp
-*.swo
-*~
-
-# VS Code
-.vscode/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# JetBrains IDEs
-.idea/
-*.iml
-*.ipr
-*.iws
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# Vim
-[._]*.s[a-v][a-z]
-[._]*.sw[a-p]
-[._]s[a-rt-v][a-z]
-[._]ss[a-gi-z]
-[._]sw[a-p]
-
-# Temporary files created by editors
-*~
-.#*
-\#*#
-.*.swp
-.*.swo
-
-# Rust specific
-Cargo.lock
-target/
-**/*.rs.bk
-
-# Generated files from our template system
-# (if we generate any temporary files)
-generated_templates/
-temp_html/
-
-# Any files created by our examples
-example_output/
-demo_output/
+# Backup files
+*.bak
+*.backup

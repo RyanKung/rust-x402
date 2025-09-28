@@ -3,13 +3,14 @@ name = "x402"
 version = "0.1.0"
 edition = "2021"
 description = "HTTP-native micropayments with x402 protocol"
-authors = ["Coinbase"]
+authors = ["Ryan Kung <ryan@example.com>"]
 license = "Apache-2.0"
-repository = "https://github.com/coinbase/x402"
+repository = "https://github.com/RyanKung/x402_rs"
 homepage = "https://x402.org"
 documentation = "https://docs.rs/x402"
-keywords = ["payment", "micropayment", "blockchain", "http", "web3"]
-categories = ["api-bindings", "cryptography", "web-programming"]
+keywords = ["payment", "micropayment", "blockchain", "http", "web3", "ethereum", "eip-3009", "axum", "actix-web", "warp"]
+categories = ["api-bindings", "cryptography", "web-programming", "network-programming"]
+readme = "README.md"
 
 [dependencies]
 # Core dependencies
