@@ -1,14 +1,19 @@
 <div align="center">
 
-![x402 Logo](../../x402.png)
+![x402 Logo](https://raw.githubusercontent.com/RyanKung/x402_rs/main/logo.png)
 
 # x402 Rust Implementation
 
 [![Crates.io](https://img.shields.io/crates/v/rust-x402)](https://crates.io/crates/rust-x402)
 [![Documentation](https://docs.rs/rust-x402/badge.svg)](https://docs.rs/rust-x402)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-GPL%20v3-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 [![GitHub](https://img.shields.io/github/stars/RyanKung/x402_rs?style=social)](https://github.com/RyanKung/x402_rs)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/RyanKung/x402_rs/ci.yml?branch=main)](https://github.com/RyanKung/x402_rs/actions)
+[![Coverage](https://img.shields.io/codecov/c/github/RyanKung/x402_rs)](https://codecov.io/gh/RyanKung/x402_rs)
+[![Downloads](https://img.shields.io/crates/d/rust-x402)](https://crates.io/crates/rust-x402)
+[![Dependencies](https://img.shields.io/librariesio/release/crates/rust-x402)](https://libraries.io/crate/rust-x402)
+[![Security](https://img.shields.io/security-headers?url=https%3A%2F%2Fdocs.rs%2Frust-x402)](https://docs.rs/rust-x402)
 
 A **high-performance, type-safe** Rust implementation of the x402 HTTP-native micropayment protocol.
 
