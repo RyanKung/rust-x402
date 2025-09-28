@@ -1,7 +1,7 @@
 //! Performance tests for x402
 
 use std::time::Instant;
-use x402::{client::X402Client, facilitator::FacilitatorClient, types::*};
+use rust_x402::{client::X402Client, facilitator::FacilitatorClient, types::*};
 
 #[tokio::test]
 async fn test_payment_payload_creation_performance() {
@@ -135,7 +135,7 @@ async fn test_facilitator_client_creation_performance() {
     let start = Instant::now();
 
     for _ in 0..iterations {
-        let config = x402::types::FacilitatorConfig::new("https://api.example.com");
+        let config = rust_x402::types::FacilitatorConfig::new("https://api.example.com");
         let _facilitator =
             FacilitatorClient::new(config).expect("Facilitator client creation MUST succeed");
     }

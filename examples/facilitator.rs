@@ -13,7 +13,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 use rand::Rng;
-use x402::{types::*, Result, X402Error};
+use rust_x402::{types::*, Result, X402Error};
 
 /// Simple in-memory facilitator for demonstration
 #[derive(Debug, Clone)]

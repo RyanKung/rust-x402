@@ -6,7 +6,7 @@ Add x402 to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-x402 = "0.1.0"
+rust-x402 = "0.1.0"
 ```
 
 ## Feature Flags
@@ -23,16 +23,16 @@ x402 supports several feature flags to include only what you need:
 ```toml
 [dependencies]
 # Basic usage with Axum (default)
-x402 = "0.1.0"
+rust-x402 = "0.1.0"
 
 # Or specify features explicitly
-x402 = { version = "0.1.0", features = ["axum"] }
+rust-x402 = { version = "0.1.0", features = ["axum"] }
 
 # Multiple frameworks
-x402 = { version = "0.1.0", features = ["axum", "actix-web", "warp"] }
+rust-x402 = { version = "0.1.0", features = ["axum", "actix-web", "warp"] }
 
 # No framework features (core only)
-x402 = { version = "0.1.0", default-features = false }
+rust-x402 = { version = "0.1.0", default-features = false }
 ```
 
 ## Requirements
@@ -91,6 +91,6 @@ cargo publish
 
 ### Getting Help
 
-- [Documentation](https://docs.rs/x402)
+- [Documentation](https://docs.rs/rust-x402)
 - [GitHub Issues](https://github.com/RyanKung/x402_rs/issues)
 - [Examples](examples/)

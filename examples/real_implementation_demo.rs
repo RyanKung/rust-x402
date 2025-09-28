@@ -3,7 +3,7 @@
 //! This example demonstrates the complete real implementation of x402 payments,
 //! including real wallet signatures, blockchain verification, and facilitator settlement.
 
-use x402::{
+use rust_x402::{
     blockchain::{BlockchainClientFactory, TransactionStatus},
     client::X402Client,
     error::X402Error,
@@ -161,7 +161,7 @@ fn get_payer_address() -> String {
 
 /// Monitor transaction confirmation
 async fn monitor_transaction_confirmation(
-    blockchain_client: &x402::blockchain::BlockchainClient,
+    blockchain_client: &rust_x402::blockchain::BlockchainClient,
     transaction_hash: &str,
 ) -> Result<()> {
     let mut attempts = 0;

@@ -4,8 +4,8 @@
 
 # x402 Rust Implementation
 
-[![Crates.io](https://img.shields.io/crates/v/x402)](https://crates.io/crates/x402)
-[![Documentation](https://docs.rs/x402/badge.svg)](https://docs.rs/x402)
+[![Crates.io](https://img.shields.io/crates/v/rust-x402)](https://crates.io/crates/rust-x402)
+[![Documentation](https://docs.rs/rust-x402/badge.svg)](https://docs.rs/rust-x402)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 [![GitHub](https://img.shields.io/github/stars/RyanKung/x402_rs?style=social)](https://github.com/RyanKung/x402_rs)
@@ -22,7 +22,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-x402 = "0.1.0"
+rust-x402 = "0.1.0"
 ```
 
 ## ✨ Features
@@ -47,7 +47,7 @@ use axum::{
     routing::get,
     Router,
 };
-use x402::{
+use rust_x402::{
     axum::PaymentMiddleware,
     types::{PaymentRequirements, FacilitatorConfig},
 };
@@ -86,8 +86,8 @@ async fn joke_handler() -> Result<Json<serde_json::Value>, StatusCode> {
 ### 💳 Making Payments with a Client
 
 ```rust
-use x402::client::X402Client;
-use x402::types::{PaymentPayload, PaymentRequirements};
+use rust_x402::client::X402Client;
+use rust_x402::types::{PaymentPayload, PaymentRequirements};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

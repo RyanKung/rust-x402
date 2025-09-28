@@ -8,7 +8,7 @@
 //! 4. Implement proper error handling for wallet operations
 
 use std::str::FromStr;
-use x402::{
+use rust_x402::{
     client::X402Client,
     crypto::{
         eip712::{create_transfer_with_authorization_hash, Domain},
@@ -109,7 +109,7 @@ impl WalletIntegration {
             verify_payment_payload(&payment_payload.payload, from_address, &self.network)?;
 
         if !is_valid {
-            return Err(x402::X402Error::invalid_signature(
+            return Err(rust_x402::X402Error::invalid_signature(
                 "Generated signature verification failed",
             ));
         }
@@ -142,7 +142,7 @@ impl WalletIntegration {
         let final_response = client.get(url).payment(&payment_payload)?.send().await?;
 
         if !final_response.status().is_success() {
-            return Err(x402::X402Error::payment_verification_failed(format!(
+            return Err(rust_x402::X402Error::payment_verification_failed(format!(
                 "Payment request failed with status: {}",
                 final_response.status()
             )));
@@ -182,7 +182,7 @@ fn get_network_config(network: &str) -> Result<NetworkConfig> {
                 "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             )?,
         }),
-        _ => Err(x402::X402Error::invalid_network(format!(
+        _ => Err(rust_x402::X402Error::invalid_network(format!(
             "Unsupported network: {}",
             network
         ))),

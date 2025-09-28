@@ -6,10 +6,10 @@ The x402 Rust implementation is now complete and ready for standalone publicatio
 
 ## 📦 Package Information
 
-- **Name**: `x402`
+- **Name**: `rust-x402`
 - **Version**: `0.1.0`
 - **Repository**: https://github.com/RyanKung/x402_rs
-- **Documentation**: https://docs.rs/x402
+- **Documentation**: https://docs.rs/rust-x402
 - **License**: Apache-2.0
 
 ## 🎯 Features Implemented

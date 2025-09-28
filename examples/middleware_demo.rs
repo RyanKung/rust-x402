@@ -2,8 +2,8 @@
 
 use rust_decimal::Decimal;
 use std::str::FromStr;
-use x402::middleware::PaymentMiddleware;
-use x402::types::PaymentPayload;
+use rust_x402::middleware::PaymentMiddleware;
+use rust_x402::types::PaymentPayload;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -27,7 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("   Pay-to: 0x209693Bc6afc0C5328bA36FaF03C514EF312287C");
 
     // Create a test payment payload
-    let auth = x402::types::ExactEvmPayloadAuthorization::new(
+    let auth = rust_x402::types::ExactEvmPayloadAuthorization::new(
         "0x857b06519E91e3A54538791bDbb0E22373e36b66",
         "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
         "1000000", // 1 USDC in atomic units
@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480",
     );
 
-    let payload = x402::types::ExactEvmPayload {
+    let payload = rust_x402::types::ExactEvmPayload {
         signature: "0x2d6a7588d6acca505cbf0d9a4a227e0c52c6c34008c8e8986a1283259764173608a2ce6496642e377d6da8dbbf5836e9bd15092f9ecab05ded3d6293af148b571c".to_string(),
         authorization: auth,
     };

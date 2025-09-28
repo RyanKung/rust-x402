@@ -82,9 +82,9 @@ fi
 # Step 5: Publish
 print_status "Publishing to crates.io..."
 if cargo publish; then
-    print_success "Successfully published x402 v$CURRENT_VERSION to crates.io!"
-    print_success "Crate URL: https://crates.io/crates/x402"
-    print_success "Documentation: https://docs.rs/x402"
+    print_success "Successfully published rust-x402 v$CURRENT_VERSION to crates.io!"
+    print_success "Crate URL: https://crates.io/crates/rust-x402"
+    print_success "Documentation: https://docs.rs/rust-x402"
 else
     print_error "Failed to publish to crates.io"
     exit 1

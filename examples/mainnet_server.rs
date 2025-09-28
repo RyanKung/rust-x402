@@ -7,7 +7,7 @@ use axum::{response::Json, routing::get};
 use rust_decimal::Decimal;
 use serde_json::json;
 use std::str::FromStr;
-use x402::{
+use rust_x402::{
     axum::{create_payment_app, examples, AxumPaymentConfig},
     facilitator::coinbase,
 };

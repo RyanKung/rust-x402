@@ -4,12 +4,12 @@
 
 use actix_web::{middleware::Logger, web, App, HttpRequest, HttpResponse, HttpServer, Result};
 use std::str::FromStr;
-use x402::{
+use rust_x402::{
     middleware::PaymentMiddleware,
     types::{FacilitatorConfig, PaymentRequirements},
 };
 
-use x402::actix_web::{create_x402_middleware, handle_payment_verification};
+use rust_x402::actix_web::{create_x402_middleware, handle_payment_verification};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

@@ -4,7 +4,7 @@ use base64::Engine;
 use mockito::{Matcher, Server};
 use serde_json::json;
 use std::str::FromStr;
-use x402::{
+use rust_x402::{
     client::{DiscoveryClient, DiscoveryFilters, X402Client},
     types::*,
     X402Error,

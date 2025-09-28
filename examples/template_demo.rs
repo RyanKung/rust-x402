@@ -3,8 +3,8 @@
 //! This example demonstrates how to use the new HTML template system
 //! for generating paywall pages.
 
-use x402::template::{self, PaywallConfig};
-use x402::types::PaymentRequirements;
+use rust_x402::template::{self, PaywallConfig};
+use rust_x402::types::PaymentRequirements;
 
 fn main() {
     // Create payment requirements

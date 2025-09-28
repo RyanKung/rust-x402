@@ -6,7 +6,7 @@ use serde_json::json;
 use std::str::FromStr;
 // Note: ServiceBuilder and TraceLayer imports removed as they're not used in this example
 
-use x402::{
+use rust_x402::{
     axum::{create_payment_app, examples, AxumPaymentConfig},
     types::FacilitatorConfig,
 };

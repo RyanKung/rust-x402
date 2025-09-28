@@ -1,6 +1,6 @@
 //! Comprehensive error handling tests for x402
 
-use x402::X402Error;
+use rust_x402::X402Error;
 
 #[test]
 fn test_network_not_supported_error() {

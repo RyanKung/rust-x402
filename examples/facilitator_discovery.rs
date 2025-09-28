@@ -3,7 +3,7 @@
 //! This example shows how to use the FacilitatorClient to discover x402 resources,
 //! similar to TypeScript's `useFacilitator().list()` and Python's `FacilitatorClient.list()`
 
-use x402::{
+use rust_x402::{
     client::DiscoveryFilters, facilitator::FacilitatorClient, types::FacilitatorConfig, Result,
 };
 

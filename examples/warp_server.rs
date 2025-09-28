@@ -8,12 +8,12 @@ use warp::{
     reply::{json, with_status},
     Filter, Reply,
 };
-use x402::{
+use rust_x402::{
     middleware::PaymentMiddleware,
     types::{FacilitatorConfig, PaymentRequirements},
 };
 
-use x402::warp::{create_x402_middleware, payment_handler};
+use rust_x402::warp::{create_x402_middleware, payment_handler};
 
 #[tokio::main]
 async fn main() {

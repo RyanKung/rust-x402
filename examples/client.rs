@@ -1,7 +1,7 @@
 //! Example client making x402 payments
 
 // Note: FromStr import removed as it's not used in this example
-use x402::{
+use rust_x402::{
     client::{DiscoveryClient, X402Client},
     types::{PaymentPayload, PaymentRequirements},
     wallet::WalletFactory,

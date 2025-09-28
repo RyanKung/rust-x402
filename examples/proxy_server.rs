@@ -4,7 +4,7 @@
 //! x402 payment protection to any existing HTTP service.
 
 use std::env;
-use x402::proxy::{run_proxy_server, ProxyConfig};
+use rust_x402::proxy::{run_proxy_server, ProxyConfig};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
