@@ -1,6 +1,6 @@
 <div align="center">
 
-![x402 Logo](https://raw.githubusercontent.com/RyanKung/x402_rs/main/logo.png)
+![x402 Logo](https://raw.githubusercontent.com/RyanKung/x402_rs/master/logo.png)
 
 # x402 Rust Implementation
 
