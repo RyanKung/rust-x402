@@ -5,12 +5,12 @@
 
 use axum::{response::Json, routing::get};
 use rust_decimal::Decimal;
-use serde_json::json;
-use std::str::FromStr;
 use rust_x402::{
     axum::{create_payment_app, examples, AxumPaymentConfig},
     facilitator::coinbase,
 };
+use serde_json::json;
+use std::str::FromStr;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

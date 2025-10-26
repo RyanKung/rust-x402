@@ -44,9 +44,11 @@ pub struct PaymentMiddlewareConfig {
 impl PaymentMiddlewareConfig {
     /// Create a new payment middleware config
     pub fn new(amount: Decimal, pay_to: impl Into<String>) -> Self {
+        // Normalize pay_to to lowercase to avoid EIP-55 checksum mismatches
+        let pay_to_normalized = pay_to.into().to_lowercase();
         Self {
             amount,
-            pay_to: pay_to.into(),
+            pay_to: pay_to_normalized,
             description: None,
             mime_type: None,
             max_timeout_seconds: 60,
@@ -138,12 +140,15 @@ impl PaymentMiddlewareConfig {
             .normalize()
             .to_string();
 
+        // Normalize pay_to to lowercase to avoid EIP-55 checksum mismatches
+        let pay_to_normalized = self.pay_to.to_lowercase();
+        
         let mut requirements = PaymentRequirements::new(
             schemes::EXACT,
             network,
             max_amount_required,
             usdc_address,
-            &self.pay_to,
+            &pay_to_normalized,
             resource,
             self.description.as_deref().unwrap_or("Payment required"),
         );

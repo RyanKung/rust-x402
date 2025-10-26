@@ -2,13 +2,13 @@
 
 use base64::Engine;
 use mockito::{Matcher, Server};
-use serde_json::json;
-use std::str::FromStr;
 use rust_x402::{
     client::{DiscoveryClient, DiscoveryFilters, X402Client},
     types::*,
     X402Error,
 };
+use serde_json::json;
+use std::str::FromStr;
 
 #[tokio::test]
 async fn test_client_with_payment_required() {

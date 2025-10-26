@@ -1,9 +1,9 @@
 //! Middleware demo showing how to use x402 payment middleware with different frameworks
 
 use rust_decimal::Decimal;
-use std::str::FromStr;
 use rust_x402::middleware::PaymentMiddleware;
 use rust_x402::types::PaymentPayload;
+use std::str::FromStr;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

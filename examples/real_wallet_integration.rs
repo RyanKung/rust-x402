@@ -7,7 +7,6 @@
 //! 3. Handle wallet interactions properly
 //! 4. Implement proper error handling for wallet operations
 
-use std::str::FromStr;
 use rust_x402::{
     client::X402Client,
     crypto::{
@@ -17,6 +16,7 @@ use rust_x402::{
     types::{ExactEvmPayload, ExactEvmPayloadAuthorization, PaymentPayload, PaymentRequirements},
     Result,
 };
+use std::str::FromStr;
 
 /// Example of creating a payment payload with real wallet integration
 ///

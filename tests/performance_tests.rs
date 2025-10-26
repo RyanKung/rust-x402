@@ -1,7 +1,7 @@
 //! Performance tests for x402
 
-use std::time::Instant;
 use rust_x402::{client::X402Client, facilitator::FacilitatorClient, types::*};
+use std::time::Instant;
 
 #[tokio::test]
 async fn test_payment_payload_creation_performance() {

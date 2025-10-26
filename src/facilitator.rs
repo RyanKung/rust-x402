@@ -59,11 +59,25 @@ impl FacilitatorClient {
         payment_payload: &PaymentPayload,
         payment_requirements: &PaymentRequirements,
     ) -> Result<VerifyResponse> {
+        tracing::debug!(
+            "Payment payload: {}",
+            serde_json::to_string_pretty(payment_payload).unwrap_or_default()
+        );
+        tracing::debug!(
+            "Payment requirements: {}",
+            serde_json::to_string_pretty(payment_requirements).unwrap_or_default()
+        );
+
         let request_body = json!({
-            "x402Version": X402_VERSION,
             "paymentPayload": payment_payload,
             "paymentRequirements": payment_requirements,
         });
+
+        tracing::debug!(
+            "Facilitator verify request body: {}",
+            serde_json::to_string_pretty(&request_body).unwrap_or_default()
+        );
+        tracing::debug!("Sending request to: {}/verify", self.url);
 
         let mut request = self
             .client
@@ -81,11 +95,24 @@ impl FacilitatorClient {
         }
 
         let response = request.send().await?;
+        let status = response.status();
 
-        if !response.status().is_success() {
+        if !status.is_success() {
+            let response_body = response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Unable to read response body".to_string());
+            tracing::error!(
+                "Facilitator verify failed with status: {}. Request body: {}. Response body: {}",
+                status,
+                serde_json::to_string_pretty(&request_body).unwrap_or_default(),
+                response_body
+            );
             return Err(X402Error::facilitator_error(format!(
-                "Verification failed with status: {}",
-                response.status()
+                "Verification failed with status: {}. Response: {}. Request: {}",
+                status,
+                response_body,
+                serde_json::to_string(&request_body).unwrap_or_default()
             )));
         }
 
@@ -100,7 +127,6 @@ impl FacilitatorClient {
         payment_requirements: &PaymentRequirements,
     ) -> Result<SettleResponse> {
         let request_body = json!({
-            "x402Version": X402_VERSION,
             "paymentPayload": payment_payload,
             "paymentRequirements": payment_requirements,
         });

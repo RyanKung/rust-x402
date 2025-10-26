@@ -3,8 +3,8 @@
 //! This example demonstrates how to create a reverse proxy server that adds
 //! x402 payment protection to any existing HTTP service.
 
-use std::env;
 use rust_x402::proxy::{run_proxy_server, ProxyConfig};
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -3,11 +3,11 @@
 //! This example demonstrates how to create an Actix-web server with x402 payment protection.
 
 use actix_web::{middleware::Logger, web, App, HttpRequest, HttpResponse, HttpServer, Result};
-use std::str::FromStr;
 use rust_x402::{
     middleware::PaymentMiddleware,
     types::{FacilitatorConfig, PaymentRequirements},
 };
+use std::str::FromStr;
 
 use rust_x402::actix_web::{create_x402_middleware, handle_payment_verification};
 

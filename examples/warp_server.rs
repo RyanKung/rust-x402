@@ -2,15 +2,15 @@
 //!
 //! This example demonstrates how to create a Warp server with x402 payment protection.
 
+use rust_x402::{
+    middleware::PaymentMiddleware,
+    types::{FacilitatorConfig, PaymentRequirements},
+};
 use std::str::FromStr;
 use warp::{
     http::StatusCode,
     reply::{json, with_status},
     Filter, Reply,
-};
-use rust_x402::{
-    middleware::PaymentMiddleware,
-    types::{FacilitatorConfig, PaymentRequirements},
 };
 
 use rust_x402::warp::{create_x402_middleware, payment_handler};

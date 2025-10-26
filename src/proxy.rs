@@ -171,7 +171,9 @@ impl ProxyConfig {
             Network::Mainnet
         };
 
-        let mut config = PaymentMiddlewareConfig::new(amount, &self.pay_to)
+        // Normalize pay_to to lowercase to avoid EIP-55 checksum mismatches
+        let pay_to_normalized = self.pay_to.to_lowercase();
+        let mut config = PaymentMiddlewareConfig::new(amount, &pay_to_normalized)
             .with_facilitator_config(facilitator_config)
             .with_testnet(self.testnet)
             .with_max_timeout_seconds(self.max_timeout_seconds);
