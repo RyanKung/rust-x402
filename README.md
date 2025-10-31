@@ -15,6 +15,8 @@
 
 A **high-performance, type-safe** Rust implementation of the x402 HTTP-native micropayment protocol.
 
+> 🎉 **First public debut at [EthGlobal Online 2025](https://ethglobal.com)**
+
 ## 📦 Installation
 
 Add this to your `Cargo.toml`:
