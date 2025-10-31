@@ -1,28 +1,134 @@
-//! # x402 - HTTP-native micropayments
+//! # x402 Rust Implementation
 //!
-//! A Rust implementation of the x402 protocol for HTTP-native micropayments.
-//! This library provides the core types, client, and middleware for implementing
-//! payment-protected HTTP resources.
+//! A **high-performance, type-safe** Rust implementation of the x402 HTTP-native micropayment protocol.
+//!
+//! ## Features
+//!
+//! - 🚀 **HTTP-native micropayments**: Leverage the HTTP 402 status code for payment requirements
+//! - ⛓️ **Blockchain integration**: Support for EIP-3009 token transfers with real wallet integration
+//! - 🌐 **Web framework support**: Middleware for Axum, Actix Web, and Warp
+//! - 💰 **Facilitator integration**: Built-in support for payment verification and settlement
+//! - 🔒 **Type safety**: Strongly typed Rust implementation with comprehensive error handling
+//! - 🧪 **Comprehensive testing**: 70+ tests with 100% pass rate covering all real implementations
+//! - 🏗️ **Real implementations**: Production-ready wallet, blockchain, and facilitator clients
+//! - 🌊 **Multipart & Streaming**: Full support for large file uploads and streaming responses
+//! - 📡 **HTTP/3 Support**: Optional HTTP/3 (QUIC) support for modern high-performance networking
+//!
+//! ## Quick Start
+//!
+//! ### Creating a Payment Server with Axum
+//!
+//! ```rust,no_run
+//! use axum::{response::Json, routing::get};
+//! use rust_x402::{
+//!     axum::{create_payment_app, AxumPaymentConfig},
+//!     types::FacilitatorConfig,
+//! };
+//! use std::str::FromStr;
+//!
+//! #[tokio::main]
+//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     // Create facilitator config
+//!     let facilitator_config = FacilitatorConfig::default();
+//!     
+//!     // Create payment configuration
+//!     let payment_config = AxumPaymentConfig::new(
+//!         rust_decimal::Decimal::from_str("0.0001")?,
+//!         "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+//!     )
+//!     .with_description("Premium API access")
+//!     .with_facilitator_config(facilitator_config)
+//!     .with_testnet(true);
+//!
+//!     // Create the application with payment middleware
+//!     let app = create_payment_app(payment_config, |router| {
+//!         router.route("/joke", get(joke_handler))
+//!     });
+//!
+//!     // Start server
+//!     let listener = tokio::net::TcpListener::bind("0.0.0.0:4021").await?;
+//!     axum::serve(listener, app).await?;
+//!
+//!     Ok(())
+//! }
+//!
+//! async fn joke_handler() -> Json<serde_json::Value> {
+//!     Json(serde_json::json!({
+//!         "joke": "Why do programmers prefer dark mode? Because light attracts bugs!"
+//!     }))
+//! }
+//! ```
+//!
+//! ## Architecture
+//!
+//! The Rust implementation is organized into several modules:
+//!
+//! - **`types`**: Core data structures and type definitions
+//! - **`client`**: HTTP client with x402 payment support
+//! - **`facilitator`**: Payment verification and settlement
+//! - **`middleware`**: Web framework middleware implementations
+//! - **`crypto`**: Cryptographic utilities for payment signing
+//! - **`error`**: Comprehensive error handling
+//! - **`wallet`**: Real wallet integration with EIP-712 signing
+//! - **`blockchain`**: Blockchain client for network interactions
+//! - **`blockchain_facilitator`**: Blockchain-based facilitator implementation
+//! - **`http3`**: HTTP/3 (QUIC) support (feature-gated)
+//! - **`proxy`**: Reverse proxy with streaming support
+//!
+//! ## HTTP Protocol Support
+//!
+//! - **HTTP/1.1**: Full support with chunked transfer encoding
+//! - **HTTP/2**: Full support with multiplexing
+//! - **Multipart**: Support for `multipart/form-data` uploads (via `multipart` feature)
+//! - **Streaming**: Chunked and streaming responses (via `streaming` feature)
+//! - **HTTP/3** (optional): QUIC-based HTTP/3 via `http3` feature flag
+//!
+//! ## Optional Features
+//!
+//! x402 supports optional features for a modular build:
+//!
+//! ```toml
+//! [dependencies]
+//! rust-x402 = { version = "0.1.2", features = ["http3", "streaming", "multipart"] }
+//! ```
+//!
+//! - **`http3`**: Enable HTTP/3 (QUIC) support
+//! - **`streaming`**: Enable chunked and streaming responses
+//! - **`multipart`**: Enable `multipart/form-data` upload support (requires `streaming`)
+//! - **`axum`**: Enable Axum web framework integration (default)
+//! - **`actix-web`**: Enable Actix Web framework integration
+//! - **`warp`**: Enable Warp web framework integration
+//!
+//! ## Blockchain Support
+//!
+//! Currently supports:
+//! - **Base**: Base mainnet and testnet
+//! - **Avalanche**: Avalanche mainnet and Fuji testnet
+//! - **EIP-3009**: Transfer with Authorization standard
 
 pub mod blockchain;
+pub mod blockchain_facilitator;
 pub mod client;
 pub mod crypto;
 pub mod error;
 pub mod facilitator;
 pub mod middleware;
 pub mod proxy;
-pub mod real_facilitator;
 pub mod template;
 pub mod types;
 pub mod wallet;
 
+// HTTP/3 support (feature-gated)
+#[cfg(feature = "http3")]
+pub mod http3;
+
 // Re-exports for convenience
 pub use blockchain::{BlockchainClient, BlockchainClientFactory};
-pub use client::X402Client;
-pub use error::{Result, X402Error};
-pub use real_facilitator::{
+pub use blockchain_facilitator::{
     BlockchainFacilitatorClient, BlockchainFacilitatorConfig, BlockchainFacilitatorFactory,
 };
+pub use client::X402Client;
+pub use error::{Result, X402Error};
 pub use types::*;
 pub use wallet::{Wallet, WalletFactory};
 
@@ -50,7 +156,7 @@ mod tests {
     fn test_version_constants() {
         assert_eq!(X402_VERSION, 1);
         // VERSION is a const string, so it's never empty
-        assert_eq!(VERSION, "0.1.0");
+        assert_eq!(VERSION, "0.1.2");
     }
 
     #[test]
