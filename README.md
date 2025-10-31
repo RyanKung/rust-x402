@@ -1,5 +1,7 @@
 # x402 Rust Implementation
 
+![x402 Logo](logo.png)
+
 A **high-performance, type-safe** Rust implementation of the x402 HTTP-native micropayment protocol.
 
 ## 📦 Installation
@@ -8,7 +10,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rust-x402 = "0.1.0"
+rust-x402 = "0.2.2"
 ```
 
 ## ✨ Features
@@ -145,7 +147,7 @@ x402 supports optional features for a modular build:
 
 ```toml
 [dependencies]
-rust-x402 = { version = "0.1.2", features = ["http3", "streaming", "multipart"] }
+rust-x402 = { version = "0.2.2", features = ["http3", "streaming", "multipart"] }
 ```
 
 - **`http3`**: Enable HTTP/3 (QUIC) support
