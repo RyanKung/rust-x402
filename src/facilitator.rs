@@ -451,7 +451,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_verify_success() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("POST", "/verify")
             .with_status(200)
             .with_header("content-type", "application/json")
@@ -485,7 +485,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_verify_failure() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("POST", "/verify")
             .with_status(200)
             .with_header("content-type", "application/json")
@@ -520,7 +520,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_settle_success() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("POST", "/settle")
             .with_status(200)
             .with_header("content-type", "application/json")
@@ -553,7 +553,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_settle_failure() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("POST", "/settle")
             .with_status(200)
             .with_header("content-type", "application/json")
@@ -591,7 +591,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_server_error() {
         let mut server = Server::new_async().await;
-        let _m = server.mock("POST", "/verify").with_status(500).create();
+        let _mock = server.mock("POST", "/verify").with_status(500).create();
 
         let config = FacilitatorConfig::new(server.url());
         let client = FacilitatorClient::new(config).unwrap();
@@ -610,7 +610,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_supported() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("GET", "/supported")
             .with_status(200)
             .with_header("content-type", "application/json")
@@ -647,7 +647,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_with_auth_headers() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("POST", "/verify")
             .with_status(200)
             .with_header("content-type", "application/json")
@@ -726,7 +726,7 @@ mod tests {
     #[tokio::test]
     async fn test_network_mismatch_returns_error() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("POST", "/verify")
             .with_status(200)
             .with_header("content-type", "application/json")
@@ -837,7 +837,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_discovery_list() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("GET", "/discovery/resources")
             .with_status(200)
             .with_header("content-type", "application/json")
@@ -881,7 +881,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_discovery_with_filters() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("GET", "/discovery/resources")
             .match_query(Matcher::AllOf(vec![
                 Matcher::UrlEncoded("type".to_string(), "http".to_string()),
@@ -921,7 +921,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_discovery_by_type() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("GET", "/discovery/resources")
             .match_query(Matcher::UrlEncoded("type".to_string(), "api".to_string()))
             .with_status(200)
@@ -962,7 +962,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_discovery_error() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("GET", "/discovery/resources")
             .with_status(500)
             .with_header("content-type", "application/json")
@@ -984,7 +984,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_supported_with_auth_headers() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("GET", "/supported")
             .match_header("Authorization", "Bearer test-token")
             .with_status(200)
@@ -1043,7 +1043,7 @@ mod tests {
     #[tokio::test]
     async fn test_facilitator_supported_without_auth_headers() {
         let mut server = Server::new_async().await;
-        let _m = server
+        let _mock = server
             .mock("GET", "/supported")
             .with_status(200)
             .with_header("content-type", "application/json")
