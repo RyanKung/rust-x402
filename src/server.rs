@@ -43,30 +43,6 @@ impl ServerConfig {
             protocol,
         }
     }
-
-    /// Set HTTP/1.1
-    pub fn http1(self) -> Self {
-        Self {
-            protocol: HttpProtocol::Http1,
-            ..self
-        }
-    }
-
-    /// Set HTTP/2
-    pub fn http2(self) -> Self {
-        Self {
-            protocol: HttpProtocol::Http2,
-            ..self
-        }
-    }
-
-    /// Set HTTP/3
-    pub fn http3(self) -> Self {
-        Self {
-            protocol: HttpProtocol::Http3,
-            ..self
-        }
-    }
 }
 
 /// Trait for creating and starting HTTP servers
@@ -98,21 +74,17 @@ impl ServerBuilder {
         self
     }
 
-    /// Use HTTP/1.1
-    pub fn http1(mut self) -> Self {
-        self.config = self.config.http1();
-        self
-    }
-
-    /// Use HTTP/2
-    pub fn http2(mut self) -> Self {
-        self.config = self.config.http2();
-        self
-    }
-
-    /// Use HTTP/3
-    pub fn http3(mut self) -> Self {
-        self.config = self.config.http3();
+    /// Set the HTTP protocol version
+    pub fn version(mut self, version: u8) -> Self {
+        self.config.protocol = match version {
+            1 => HttpProtocol::Http1,
+            2 => HttpProtocol::Http2,
+            3 => HttpProtocol::Http3,
+            _ => {
+                tracing::warn!("Invalid HTTP version {}, defaulting to HTTP/1.1", version);
+                HttpProtocol::Http1
+            }
+        };
         self
     }
 
@@ -225,24 +197,23 @@ mod tests {
         assert_eq!(config.protocol, HttpProtocol::Http3);
     }
 
-    #[test]
-    fn test_server_config_protocol_setters() {
-        let config = ServerConfig::default().http2();
-        assert_eq!(config.protocol, HttpProtocol::Http2);
-
-        let config = ServerConfig::default().http3();
-        assert_eq!(config.protocol, HttpProtocol::Http3);
-    }
-
     #[tokio::test]
     async fn test_server_builder() {
         let router = Router::new();
-        let builder = ServerBuilder::new(router)
-            .bind("127.0.0.1:0") // Use port 0 for automatic port assignment
-            .http1();
 
-        // This will fail on binding, but we can verify the configuration
+        // Test default (HTTP/1.1)
+        let builder = ServerBuilder::new(router.clone()).bind("127.0.0.1:0");
         assert_eq!(builder.config.bind_addr, "127.0.0.1:0");
         assert_eq!(builder.config.protocol, HttpProtocol::Http1);
+
+        // Test HTTP/2
+        let builder = ServerBuilder::new(router.clone())
+            .bind("127.0.0.1:0")
+            .version(2);
+        assert_eq!(builder.config.protocol, HttpProtocol::Http2);
+
+        // Test HTTP/3
+        let builder = ServerBuilder::new(router).bind("127.0.0.1:0").version(3);
+        assert_eq!(builder.config.protocol, HttpProtocol::Http3);
     }
 }
