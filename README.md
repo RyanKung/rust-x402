@@ -37,8 +37,10 @@ rust-x402 = "0.1.0"
 - 🌐 **Web framework support**: Middleware for Axum, Actix Web, and Warp
 - 💰 **Facilitator integration**: Built-in support for payment verification and settlement
 - 🔒 **Type safety**: Strongly typed Rust implementation with comprehensive error handling
-- 🧪 **Comprehensive testing**: 62+ tests with 100% pass rate covering all real implementations
+- 🧪 **Comprehensive testing**: 70+ tests with 100% pass rate covering all real implementations
 - 🏗️ **Real implementations**: Production-ready wallet, blockchain, and facilitator clients
+- 🌊 **Multipart & Streaming**: Full support for large file uploads and streaming responses
+- 📡 **HTTP/3 Support**: Optional HTTP/3 (QUIC) support for modern high-performance networking
 
 ## 🚀 Quick Start
 
@@ -134,13 +136,39 @@ The Rust implementation is organized into several modules:
 - ❌ **`error`**: Comprehensive error handling
 - 🏦 **`wallet`**: Real wallet integration with EIP-712 signing
 - ⛓️ **`blockchain`**: Blockchain client for network interactions
-- 🏭 **`real_facilitator`**: Production-ready facilitator implementation
+- 🏭 **`blockchain_facilitator`**: Blockchain-based facilitator implementation
+- 📡 **`http3`**: HTTP/3 (QUIC) support (feature-gated)
+- 🔄 **`proxy`**: Reverse proxy with streaming support
 
 ## 🌐 Supported Web Frameworks
 
 - 🚀 **Axum**: Modern, ergonomic web framework
 - ⚡ **Actix Web**: High-performance actor-based framework
 - 🪶 **Warp**: Lightweight, composable web server
+
+## 🌐 HTTP Protocol Support
+
+- ✅ **HTTP/1.1**: Full support with chunked transfer encoding
+- ✅ **HTTP/2**: Full support with multiplexing
+- ✅ **Multipart**: Support for `multipart/form-data` uploads (via `multipart` feature)
+- ✅ **Streaming**: Chunked and streaming responses (via `streaming` feature)
+- 🔜 **HTTP/3** (optional): QUIC-based HTTP/3 via `http3` feature flag
+
+## 🎛️ Optional Features
+
+x402 supports optional features for a modular build:
+
+```toml
+[dependencies]
+rust-x402 = { version = "0.1.2", features = ["http3", "streaming", "multipart"] }
+```
+
+- **`http3`**: Enable HTTP/3 (QUIC) support
+- **`streaming`**: Enable chunked and streaming responses
+- **`multipart`**: Enable `multipart/form-data` upload support (requires `streaming`)
+- **`axum`**: Enable Axum web framework integration (default)
+- **`actix-web`**: Enable Actix Web framework integration
+- **`warp`**: Enable Warp web framework integration
 
 ## ⛓️ Blockchain Support
 
@@ -160,10 +188,12 @@ See the `examples/` directory for complete working examples:
 
 ## 📊 Testing
 
-- ✅ **62+ tests** with 100% pass rate
+- ✅ **70+ tests** with 100% pass rate
 - 🧪 **Comprehensive coverage** of all real implementations
 - 🔍 **Integration tests** for end-to-end workflows
 - 🛡️ **Error handling tests** for robust error scenarios
+- 🌊 **Multipart & streaming tests** for file upload/download scenarios
+- 📡 **HTTP/3 tests** (with `http3` feature)
 
 ## 📄 License
 

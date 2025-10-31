@@ -142,7 +142,7 @@ impl PaymentMiddlewareConfig {
 
         // Normalize pay_to to lowercase to avoid EIP-55 checksum mismatches
         let pay_to_normalized = self.pay_to.to_lowercase();
-        
+
         let mut requirements = PaymentRequirements::new(
             schemes::EXACT,
             network,
@@ -663,7 +663,7 @@ mod tests {
         .with_testnet(true);
 
         assert_eq!(config.amount, Decimal::from_str("0.0001").unwrap());
-        assert_eq!(config.pay_to, "0x209693Bc6afc0C5328bA36FaF03C514EF312287C");
+        assert_eq!(config.pay_to, "0x209693bc6afc0c5328ba36faf03c514ef312287c");
         assert_eq!(config.description, Some("Test payment".to_string()));
         assert!(config.testnet);
     }
@@ -682,7 +682,7 @@ mod tests {
         );
         assert_eq!(
             middleware.config().pay_to,
-            "0x209693Bc6afc0C5328bA36FaF03C514EF312287C"
+            "0x209693bc6afc0c5328ba36faf03c514ef312287c"
         );
     }
 
@@ -701,7 +701,7 @@ mod tests {
         assert_eq!(requirements.max_amount_required, "100");
         assert_eq!(
             requirements.pay_to,
-            "0x209693Bc6afc0C5328bA36FaF03C514EF312287C"
+            "0x209693bc6afc0c5328ba36faf03c514ef312287c"
         );
     }
 
@@ -718,7 +718,7 @@ mod tests {
         .with_resource("https://example.com/test");
 
         assert_eq!(config.amount, Decimal::from_str("0.01").unwrap());
-        assert_eq!(config.pay_to, "0x209693Bc6afc0C5328bA36FaF03C514EF312287C");
+        assert_eq!(config.pay_to, "0x209693bc6afc0c5328ba36faf03c514ef312287c");
         assert_eq!(config.description, Some("Test payment".to_string()));
         assert_eq!(config.mime_type, Some("application/json".to_string()));
         assert_eq!(config.max_timeout_seconds, 120);
