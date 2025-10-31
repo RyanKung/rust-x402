@@ -15,6 +15,10 @@ pub mod wallet;
 #[cfg(feature = "http3")]
 pub mod http3;
 
+// Server abstraction (feature-gated, requires axum)
+#[cfg(feature = "axum")]
+pub mod server;
+
 // Middleware support (feature-gated, requires axum)
 #[cfg(feature = "axum")]
 pub mod middleware;
