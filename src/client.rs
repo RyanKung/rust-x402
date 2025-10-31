@@ -2,7 +2,7 @@
 
 use crate::types::*;
 use crate::{Result, X402Error};
-use axum::http;
+use http;
 use reqwest::{Client, Response};
 use std::time::Duration;
 

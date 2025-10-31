@@ -113,8 +113,6 @@ pub mod crypto;
 pub mod error;
 pub mod facilitator;
 pub mod facilitator_storage;
-pub mod middleware;
-pub mod proxy;
 pub mod template;
 pub mod types;
 pub mod wallet;
@@ -122,6 +120,14 @@ pub mod wallet;
 // HTTP/3 support (feature-gated)
 #[cfg(feature = "http3")]
 pub mod http3;
+
+// Middleware support (feature-gated, requires axum)
+#[cfg(feature = "axum")]
+pub mod middleware;
+
+// Proxy support (feature-gated, requires axum)
+#[cfg(feature = "axum")]
+pub mod proxy;
 
 // Re-exports for convenience
 pub use blockchain::{BlockchainClient, BlockchainClientFactory};
