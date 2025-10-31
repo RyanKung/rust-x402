@@ -4,27 +4,8 @@
 //! HTTP/3 uses QUIC over UDP instead of TCP, providing better performance
 //! and connection migration capabilities.
 
-#[cfg(feature = "http3")]
-mod implementation {
-    use crate::Result;
-    use axum::Router;
-    use bytes::Bytes;
-    use h3::client::{builder, SendRequest};
-    use h3::server::RequestResolver;
-    use h3_axum::serve_h3_with_axum;
-    use h3_quinn::Connection as H3Connection;
-    use quinn::crypto::rustls::{QuicClientConfig, QuicServerConfig};
-    use quinn::{Connection, Endpoint, Incoming};
-    use rcgen::generate_simple_self_signed;
-    use rustls::pki_types::{CertificateDer, PrivateKeyDer};
-    use rustls::{ClientConfig, RootCertStore, ServerConfig};
-    use std::marker::PhantomData;
-    use std::{
-        net::{SocketAddr, ToSocketAddrs},
-        sync::Arc,
-        time::Duration,
-    };
-
+// Common types and configuration - always available regardless of feature flag
+mod config {
     /// HTTP/3 server configuration
     #[derive(Debug, Clone)]
     pub struct Http3Config {
@@ -94,6 +75,99 @@ mod implementation {
         }
     }
 
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn test_http3_config_default() {
+            let config = Http3Config::default();
+            assert_eq!(config.bind_addr, "0.0.0.0:4433");
+            assert_eq!(config.max_concurrent_bidi_streams, 100);
+            assert_eq!(config.max_concurrent_uni_streams, 100);
+            assert_eq!(config.max_idle_timeout_secs, 60);
+        }
+
+        #[test]
+        fn test_http3_config_new() {
+            let config = Http3Config::new("127.0.0.1:8080");
+            assert_eq!(config.bind_addr, "127.0.0.1:8080");
+        }
+
+        #[test]
+        fn test_http3_config_with_tls() {
+            let config = Http3Config::new("127.0.0.1:8080")
+                .with_tls("/path/to/cert.pem", "/path/to/key.pem");
+            assert_eq!(config.cert_path, Some("/path/to/cert.pem".to_string()));
+            assert_eq!(config.key_path, Some("/path/to/key.pem".to_string()));
+        }
+
+        #[test]
+        fn test_http3_config_stream_limits() {
+            let config = Http3Config::default()
+                .with_max_concurrent_bidi_streams(200)
+                .with_max_concurrent_uni_streams(150);
+            assert_eq!(config.max_concurrent_bidi_streams, 200);
+            assert_eq!(config.max_concurrent_uni_streams, 150);
+        }
+
+        #[test]
+        fn test_http3_config_timeout() {
+            let config = Http3Config::default().with_max_idle_timeout(120);
+            assert_eq!(config.max_idle_timeout_secs, 120);
+        }
+    }
+}
+
+#[cfg(feature = "http3")]
+mod implementation {
+    use crate::Result;
+    use axum::Router;
+    use bytes::Bytes;
+    use h3::client::{builder, SendRequest};
+    use h3::server::RequestResolver;
+    use h3_axum::serve_h3_with_axum;
+    use h3_quinn::Connection as H3Connection;
+    use quinn::crypto::rustls::{QuicClientConfig, QuicServerConfig};
+    use quinn::{Connection, Endpoint, Incoming};
+    use rcgen::generate_simple_self_signed;
+    use rustls::pki_types::{CertificateDer, PrivateKeyDer};
+    use rustls::{ClientConfig, RootCertStore, ServerConfig};
+    use std::marker::PhantomData;
+    use std::{
+        net::{SocketAddr, ToSocketAddrs},
+        sync::Arc,
+        time::Duration,
+    };
+
+    use super::config::Http3Config;
+
+    // Common HTTP/3 constants
+    const ALPN_PROTOCOL: &[u8] = b"h3";
+    const DEFAULT_SNI: &str = "localhost";
+    const DEFAULT_CLIENT_BIND: &str = "0.0.0.0:0";
+
+    /// Configure TLS with ALPN for HTTP/3
+    fn configure_tls_alpn(tls_config: &mut rustls::ServerConfig) {
+        tls_config.alpn_protocols = vec![ALPN_PROTOCOL.to_vec()];
+        tls_config.max_early_data_size = u32::MAX;
+    }
+
+    /// Configure client TLS with ALPN for HTTP/3
+    fn configure_client_tls_alpn(client_config: &mut ClientConfig) {
+        client_config.alpn_protocols = vec![ALPN_PROTOCOL.to_vec()];
+    }
+
+    /// Convert rustls error to X402Error
+    fn quic_config_error(e: impl std::fmt::Display) -> crate::X402Error {
+        crate::X402Error::config(format!("Failed to create QUIC config: {}", e))
+    }
+
+    /// Convert network error to X402Error
+    fn network_config_error(msg: impl Into<String>) -> crate::X402Error {
+        crate::X402Error::network_error(msg)
+    }
+
     /// Create an HTTP/3 server with x402 payment middleware
     ///
     /// This function starts an HTTP/3 server using QUIC protocol over UDP.
@@ -122,16 +196,11 @@ mod implementation {
             .with_no_client_auth()
             .with_single_cert(certs, key)?;
 
-        // HTTP/3 requires ALPN protocol negotiation
-        tls_config.alpn_protocols = vec![b"h3".to_vec()];
-        // Enable 0-RTT (early data)
-        tls_config.max_early_data_size = u32::MAX;
+        configure_tls_alpn(&mut tls_config);
 
         // Configure QUIC transport
         let mut server_config = quinn::ServerConfig::with_crypto(Arc::new(
-            QuicServerConfig::try_from(tls_config).map_err(|e| {
-                crate::X402Error::config(format!("Failed to create QUIC server config: {}", e))
-            })?,
+            QuicServerConfig::try_from(tls_config).map_err(quic_config_error)?,
         ));
 
         // Configure QUIC transport parameters
@@ -309,34 +378,27 @@ mod implementation {
                 .with_root_certificates(Arc::new(roots))
                 .with_no_client_auth();
 
-            // HTTP/3 requires ALPN protocol negotiation
-            client_crypto.alpn_protocols = vec![b"h3".to_vec()];
+            configure_client_tls_alpn(&mut client_crypto);
 
             let client_config = quinn::ClientConfig::new(Arc::new(
-                QuicClientConfig::try_from(client_crypto).map_err(|e| {
-                    crate::X402Error::config(format!("Failed to create QUIC client config: {}", e))
-                })?,
+                QuicClientConfig::try_from(client_crypto).map_err(quic_config_error)?,
             ));
 
             // Bind to any available UDP port
-            let bind_addr: SocketAddr = "0.0.0.0:0".parse().unwrap();
+            let bind_addr: SocketAddr = DEFAULT_CLIENT_BIND.parse().unwrap();
             let mut endpoint = Endpoint::client(bind_addr)?;
             endpoint.set_default_client_config(client_config);
 
             // Connect to remote
             let remote_addr = remote
                 .to_socket_addrs()
-                .map_err(|e| {
-                    crate::X402Error::network_error(format!("Failed to resolve address: {}", e))
-                })?
+                .map_err(|e| network_config_error(format!("Failed to resolve address: {}", e)))?
                 .next()
-                .ok_or_else(|| crate::X402Error::network_error("No address found"))?;
+                .ok_or_else(|| network_config_error("No address found"))?;
 
             let conn = endpoint
-                .connect(remote_addr, "localhost")
-                .map_err(|e| {
-                    crate::X402Error::network_error(format!("Failed to initiate connection: {}", e))
-                })?
+                .connect(remote_addr, DEFAULT_SNI)
+                .map_err(|e| network_config_error(format!("Failed to initiate connection: {}", e)))?
                 .await?;
 
             // Build HTTP/3 client
@@ -345,7 +407,7 @@ mod implementation {
                 .build(H3Connection::new(conn.clone()))
                 .await
                 .map_err(|e| {
-                    crate::X402Error::network_error(format!("Failed to build H3 connection: {}", e))
+                    network_config_error(format!("Failed to build H3 connection: {}", e))
                 })?;
 
             Ok((conn.clone(), h3_conn.1))
@@ -373,44 +435,6 @@ mod implementation {
         use super::*;
 
         #[test]
-        fn test_http3_config_default() {
-            let config = Http3Config::default();
-            assert_eq!(config.bind_addr, "0.0.0.0:4433");
-            assert_eq!(config.max_concurrent_bidi_streams, 100);
-            assert_eq!(config.max_concurrent_uni_streams, 100);
-            assert_eq!(config.max_idle_timeout_secs, 60);
-        }
-
-        #[test]
-        fn test_http3_config_new() {
-            let config = Http3Config::new("127.0.0.1:8080");
-            assert_eq!(config.bind_addr, "127.0.0.1:8080");
-        }
-
-        #[test]
-        fn test_http3_config_with_tls() {
-            let config = Http3Config::new("127.0.0.1:8080")
-                .with_tls("/path/to/cert.pem", "/path/to/key.pem");
-            assert_eq!(config.cert_path, Some("/path/to/cert.pem".to_string()));
-            assert_eq!(config.key_path, Some("/path/to/key.pem".to_string()));
-        }
-
-        #[test]
-        fn test_http3_config_stream_limits() {
-            let config = Http3Config::default()
-                .with_max_concurrent_bidi_streams(200)
-                .with_max_concurrent_uni_streams(150);
-            assert_eq!(config.max_concurrent_bidi_streams, 200);
-            assert_eq!(config.max_concurrent_uni_streams, 150);
-        }
-
-        #[test]
-        fn test_http3_config_timeout() {
-            let config = Http3Config::default().with_max_idle_timeout(120);
-            assert_eq!(config.max_idle_timeout_secs, 120);
-        }
-
-        #[test]
         fn test_http3_client_creation() {
             let _client = Http3Client::new();
         }
@@ -425,77 +449,9 @@ mod implementation {
 
 #[cfg(not(feature = "http3"))]
 mod implementation {
+    use super::config::Http3Config;
     use crate::{Result, X402Error};
     use axum::Router;
-
-    /// HTTP/3 server configuration (stub when http3 feature is disabled)
-    #[derive(Debug, Clone)]
-    pub struct Http3Config {
-        /// UDP bind address
-        pub bind_addr: String,
-        /// Certificate path (PEM format)
-        pub cert_path: Option<String>,
-        /// Private key path (PEM format)
-        pub key_path: Option<String>,
-        /// Maximum concurrent bidirectional streams
-        pub max_concurrent_bidi_streams: u32,
-        /// Maximum concurrent unidirectional streams
-        pub max_concurrent_uni_streams: u32,
-        /// Connection idle timeout in seconds
-        pub max_idle_timeout_secs: u64,
-    }
-
-    impl Default for Http3Config {
-        fn default() -> Self {
-            Self {
-                bind_addr: "0.0.0.0:4433".to_string(),
-                cert_path: None,
-                key_path: None,
-                max_concurrent_bidi_streams: 100,
-                max_concurrent_uni_streams: 100,
-                max_idle_timeout_secs: 60,
-            }
-        }
-    }
-
-    impl Http3Config {
-        /// Create a new HTTP/3 config
-        pub fn new(bind_addr: impl Into<String>) -> Self {
-            Self {
-                bind_addr: bind_addr.into(),
-                ..Default::default()
-            }
-        }
-
-        /// Set certificate and key paths
-        pub fn with_tls(
-            mut self,
-            cert_path: impl Into<String>,
-            key_path: impl Into<String>,
-        ) -> Self {
-            self.cert_path = Some(cert_path.into());
-            self.key_path = Some(key_path.into());
-            self
-        }
-
-        /// Set maximum concurrent bidirectional streams
-        pub fn with_max_concurrent_bidi_streams(mut self, max: u32) -> Self {
-            self.max_concurrent_bidi_streams = max;
-            self
-        }
-
-        /// Set maximum concurrent unidirectional streams
-        pub fn with_max_concurrent_uni_streams(mut self, max: u32) -> Self {
-            self.max_concurrent_uni_streams = max;
-            self
-        }
-
-        /// Set connection idle timeout in seconds
-        pub fn with_max_idle_timeout(mut self, timeout_secs: u64) -> Self {
-            self.max_idle_timeout_secs = timeout_secs;
-            self
-        }
-    }
 
     /// Create an HTTP/3 server with x402 payment middleware
     pub async fn create_http3_server(_config: Http3Config, _router: Router) -> Result<()> {
@@ -525,30 +481,14 @@ mod implementation {
         use super::*;
 
         #[test]
-        fn test_http3_config_default() {
-            let config = Http3Config::default();
-            assert_eq!(config.bind_addr, "0.0.0.0:4433");
-        }
-
-        #[test]
-        fn test_http3_config_new() {
-            let config = Http3Config::new("127.0.0.1:8080");
-            assert_eq!(config.bind_addr, "127.0.0.1:8080");
-        }
-
-        #[test]
-        fn test_http3_config_with_tls() {
-            let config = Http3Config::new("127.0.0.1:8080")
-                .with_tls("/path/to/cert.pem", "/path/to/key.pem");
-            assert_eq!(config.cert_path, Some("/path/to/cert.pem".to_string()));
-            assert_eq!(config.key_path, Some("/path/to/key.pem".to_string()));
-        }
-
-        #[test]
         fn test_http3_client_creation() {
             let _client = Http3Client::new();
         }
     }
 }
 
+// Re-export common types
+pub use config::Http3Config;
+
+// Re-export implementation-specific types and functions
 pub use implementation::*;
