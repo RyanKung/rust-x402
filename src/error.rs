@@ -118,6 +118,30 @@ pub enum X402Error {
     /// From str radix error
     #[error("From str radix error: {0}")]
     FromStrRadix(#[from] ethereum_types::FromStrRadixErr),
+
+    /// Rustls error
+    #[cfg(feature = "http3")]
+    #[error("Rustls error: {0}")]
+    Rustls(#[from] rustls::Error),
+
+    /// Certificate generation error
+    #[cfg(feature = "http3")]
+    #[error("Certificate generation error: {0}")]
+    CertGen(#[from] rcgen::Error),
+
+    /// Address parse error
+    #[error("Address parse error: {0}")]
+    AddrParse(#[from] std::net::AddrParseError),
+
+    /// Quinn error
+    #[cfg(feature = "http3")]
+    #[error("Quinn connection error: {0}")]
+    Quinn(#[from] quinn::ConnectionError),
+
+    /// H3 error
+    #[cfg(feature = "http3")]
+    #[error("H3 connection error: {0}")]
+    H3(#[from] h3::error::ConnectionError),
 }
 
 impl X402Error {
@@ -228,6 +252,15 @@ impl X402Error {
             Self::ParseInt(_) => 400,
             Self::FromHex(_) => 400,
             Self::FromStrRadix(_) => 400,
+            #[cfg(feature = "http3")]
+            Self::Rustls(_) => 500,
+            #[cfg(feature = "http3")]
+            Self::CertGen(_) => 500,
+            Self::AddrParse(_) => 400,
+            #[cfg(feature = "http3")]
+            Self::Quinn(_) => 502,
+            #[cfg(feature = "http3")]
+            Self::H3(_) => 502,
         }
     }
 
@@ -261,6 +294,15 @@ impl X402Error {
             Self::ParseInt(_) => "parse_int_error",
             Self::FromHex(_) => "from_hex_error",
             Self::FromStrRadix(_) => "from_str_radix_error",
+            #[cfg(feature = "http3")]
+            Self::Rustls(_) => "rustls_error",
+            #[cfg(feature = "http3")]
+            Self::CertGen(_) => "cert_gen_error",
+            Self::AddrParse(_) => "addr_parse_error",
+            #[cfg(feature = "http3")]
+            Self::Quinn(_) => "quinn_error",
+            #[cfg(feature = "http3")]
+            Self::H3(_) => "h3_error",
         }
     }
 }
