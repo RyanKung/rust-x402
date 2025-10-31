@@ -1,6 +1,6 @@
 [package]
 name = "rust-x402"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
 description = "HTTP-native micropayments with x402 protocol"
 authors = ["Ryan Kung <ryan@example.com>"]
@@ -23,10 +23,22 @@ url = "2.5"
 chrono = { version = "0.4", features = ["serde"] }
 
 # HTTP client
-reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls", "stream"] }
 percent-encoding = "2.0"
 tokio = { version = "1.0", features = ["full"] }
 http = "1.0"
+
+# Streaming support (optional)
+tokio-util = { version = "0.7", features = ["codec", "compat"], optional = true }
+bytes = { version = "1.0", optional = true }
+futures-util = { version = "0.3", optional = true }
+http-body = { version = "1.0", optional = true }
+http-body-util = { version = "0.1", optional = true }
+
+# HTTP/3 support (optional)
+h3 = { version = "0.0.8", optional = true }
+h3-axum = { version = "0.1.0", optional = true }
+quinn = { version = "0.10", optional = true }
 
 # Web framework support (optional)
 axum = { version = "0.7", features = ["json"], optional = true }
@@ -67,6 +79,9 @@ default = ["axum"]
 axum = ["dep:axum", "dep:tower-http"]
 actix-web = ["dep:actix-web"]
 warp = ["dep:warp"]
+http3 = ["dep:h3", "dep:h3-axum", "dep:quinn"]
+streaming = ["dep:tokio-util", "dep:futures-util", "dep:http-body", "dep:http-body-util", "dep:bytes"]
+multipart = ["streaming"]
 
 [[example]]
 name = "axum_server"
