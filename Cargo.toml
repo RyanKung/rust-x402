@@ -68,6 +68,12 @@ tracing-subscriber = "0.3"
 # Decimal arithmetic
 rust_decimal = { version = "1.0", features = ["serde"] }
 
+# Async trait support
+async-trait = "0.1"
+
+# Redis support (optional)
+redis = { version = "0.26", features = ["tokio-comp", "connection-manager"], optional = true }
+
 [dev-dependencies]
 tokio-test = "0.4"
 tempfile = "3.0"
@@ -82,6 +88,7 @@ warp = ["dep:warp"]
 http3 = ["dep:h3", "dep:h3-axum", "dep:quinn"]
 streaming = ["dep:tokio-util", "dep:futures-util", "dep:http-body", "dep:http-body-util", "dep:bytes"]
 multipart = ["streaming"]
+redis = ["dep:redis"]
 
 [[example]]
 name = "axum_server"
@@ -113,3 +120,8 @@ path = "examples/proxy_server.rs"
 [[example]]
 name = "mainnet_server"
 path = "examples/mainnet_server.rs"
+
+[[bin]]
+name = "facilitator"
+path = "main.rs"
+required-features = ["axum"]
