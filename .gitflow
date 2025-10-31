@@ -1,0 +1,70 @@
+# GitFlow Configuration for x402 Rust Implementation
+
+## Branch Naming Convention
+
+### Main Branches
+- `main`: Production-ready code
+- `develop`: Integration branch for features
+
+### Supporting Branches
+- `feature/*`: New features
+- `release/*`: Prepare a new production release
+- `hotfix/*`: Critical production fixes
+- `bugfix/*`: Bug fixes for current release
+
+## Workflow Guidelines
+
+### Feature Development
+1. Create feature branch from `develop`: `git checkout -b feature/my-feature develop`
+2. Work on feature
+3. Commit changes: `git commit -m "feat: add new feature"`
+4. Push and create PR to `develop`
+5. After merge, delete feature branch
+
+### Release Process
+1. Create release branch from `develop`: `git checkout -b release/0.3.0 develop`
+2. Update version in Cargo.toml
+3. Update CHANGELOG.md
+4. Create PR to `main`
+5. After merge, tag: `git tag v0.3.0`
+6. Merge back to `develop`
+7. Delete release branch
+
+### Hotfix Process
+1. Create hotfix branch from `main`: `git checkout -b hotfix/critical-bug main`
+2. Fix the bug
+3. Update version patch number
+4. Create PR to `main`
+5. After merge, tag: `git tag v0.2.3`
+6. Merge back to `develop`
+7. Delete hotfix branch
+
+## Commit Message Convention
+
+Following Conventional Commits:
+- `feat:` New feature
+- `fix:` Bug fix
+- `docs:` Documentation changes
+- `style:` Code style changes (formatting, etc.)
+- `refactor:` Code refactoring
+- `perf:` Performance improvements
+- `test:` Adding or updating tests
+- `chore:` Maintenance tasks
+- `ci:` CI/CD changes
+- `build:` Build system changes
+
+## Version Tagging
+
+- Tags should follow semantic versioning: `v0.2.2`
+- Minor updates for new features: `v0.3.0`
+- Patch updates for bug fixes: `v0.2.3`
+- Major updates for breaking changes: `v1.0.0`
+
+## Pull Request Guidelines
+
+1. PRs should target `develop` for features and `main` for hotfixes
+2. Descriptive title and detailed description
+3. Reference related issues
+4. All CI checks must pass
+5. Code review required before merge
+6. Squash commits when merging (optional)

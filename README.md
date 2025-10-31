@@ -1,6 +1,17 @@
 # x402 Rust Implementation
 
-![x402 Logo](logo.png)
+<div align="center">
+  <img src="logo.png" alt="x402 Logo" width="200">
+</div>
+
+<div align="center">
+
+[![CI](https://github.com/RyanKung/x402_rs/actions/workflows/ci.yml/badge.svg)](https://github.com/RyanKung/x402_rs/actions/workflows/ci.yml)
+[![docs.rs](https://docs.rs/rust-x402/badge.svg)](https://docs.rs/rust-x402)
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.2.2-orange.svg)](https://crates.io/crates/rust-x402)
+
+</div>
 
 A **high-performance, type-safe** Rust implementation of the x402 HTTP-native micropayment protocol.
 
