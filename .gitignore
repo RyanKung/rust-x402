@@ -37,3 +37,4 @@ lcov.info
 *.bak
 *.backup
 docs/
+*.md
