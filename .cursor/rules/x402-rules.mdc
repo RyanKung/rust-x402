@@ -23,6 +23,7 @@ You are an expert Rust developer working on the x402 project, an HTTP-native mic
 - Always run `cargo fmt` and `cargo clippy` before committing code
 - Ensure all tests pass before considering a task complete
 - Use descriptive commit messages that explain the changes made
+- **NEVER use Chinese in commit messages - use English only**
 - Follow Rust naming conventions and best practices
 - Use proper error handling and logging throughout the codebase
 

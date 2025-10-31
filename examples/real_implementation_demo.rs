@@ -5,9 +5,9 @@
 
 use rust_x402::{
     blockchain::{BlockchainClientFactory, TransactionStatus},
+    blockchain_facilitator::{BlockchainFacilitatorClient, BlockchainFacilitatorFactory},
     client::X402Client,
     error::X402Error,
-    real_facilitator::{BlockchainFacilitatorClient, BlockchainFacilitatorFactory},
     types::{PaymentPayload, PaymentRequirements},
     wallet::{Wallet, WalletFactory},
     Result,

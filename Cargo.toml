@@ -1,6 +1,6 @@
 [package]
 name = "rust-x402"
-version = "0.1.2"
+version = "0.2.1"
 edition = "2021"
 description = "HTTP-native micropayments with x402 protocol"
 authors = ["Ryan Kung <ryan@example.com>"]
@@ -23,16 +23,31 @@ url = "2.5"
 chrono = { version = "0.4", features = ["serde"] }
 
 # HTTP client
-reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls", "stream"] }
 percent-encoding = "2.0"
 tokio = { version = "1.0", features = ["full"] }
 http = "1.0"
 
+# Streaming support (optional)
+tokio-util = { version = "0.7", features = ["codec", "compat"], optional = true }
+bytes = { version = "1.0", optional = true }
+futures-util = { version = "0.3", optional = true }
+http-body = { version = "1.0", optional = true }
+http-body-util = { version = "0.1", optional = true }
+
+# HTTP/3 support (optional)
+h3 = { version = "0.0.8", optional = true }
+h3-axum = { version = "0.1.0", optional = true }
+h3-quinn = { version = "0.0.10", optional = true }
+quinn = { version = "0.11", optional = true }
+rcgen = { version = "0.13", optional = true }
+rustls = { version = "0.23", optional = true }
+
 # Web framework support (optional)
-axum = { version = "0.7", features = ["json"], optional = true }
+axum = { version = "0.8", features = ["json"], optional = true }
 actix-web = { version = "4.0", optional = true }
 warp = { version = "0.3", optional = true }
-tower = { version = "0.4", features = ["util"] }
+tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.5", features = ["cors", "trace"], optional = true }
 
 # Cryptographic dependencies
@@ -56,6 +71,12 @@ tracing-subscriber = "0.3"
 # Decimal arithmetic
 rust_decimal = { version = "1.0", features = ["serde"] }
 
+# Async trait support
+async-trait = "0.1"
+
+# Redis support (optional)
+redis = { version = "0.26", features = ["tokio-comp", "connection-manager"], optional = true }
+
 [dev-dependencies]
 tokio-test = "0.4"
 tempfile = "3.0"
@@ -67,6 +88,10 @@ default = ["axum"]
 axum = ["dep:axum", "dep:tower-http"]
 actix-web = ["dep:actix-web"]
 warp = ["dep:warp"]
+http3 = ["dep:h3", "dep:h3-axum", "dep:h3-quinn", "dep:quinn", "dep:rcgen", "dep:rustls", "dep:bytes"]
+streaming = ["dep:tokio-util", "dep:futures-util", "dep:http-body", "dep:http-body-util", "dep:bytes"]
+multipart = ["streaming"]
+redis = ["dep:redis"]
 
 [[example]]
 name = "axum_server"
@@ -98,3 +123,8 @@ path = "examples/proxy_server.rs"
 [[example]]
 name = "mainnet_server"
 path = "examples/mainnet_server.rs"
+
+[[bin]]
+name = "facilitator"
+path = "main.rs"
+required-features = ["axum"]

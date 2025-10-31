@@ -1,11 +1,11 @@
 //! Comprehensive tests for real implementation modules
 //!
-//! These tests verify that the real implementation modules (wallet, blockchain, real_facilitator)
+//! These tests verify that the real implementation modules (wallet, blockchain, blockchain_facilitator)
 //! work correctly and can be used in production scenarios.
 
 use rust_x402::{
     blockchain::BlockchainClientFactory,
-    real_facilitator::{BlockchainFacilitatorConfig, BlockchainFacilitatorFactory},
+    blockchain_facilitator::{BlockchainFacilitatorConfig, BlockchainFacilitatorFactory},
     types::PaymentRequirements,
     wallet::WalletFactory,
 };

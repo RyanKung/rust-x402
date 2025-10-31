@@ -36,3 +36,4 @@ lcov.info
 # Backup files
 *.bak
 *.backup
+docs/

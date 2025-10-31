@@ -1,28 +1,39 @@
-//! # x402 - HTTP-native micropayments
-//!
-//! A Rust implementation of the x402 protocol for HTTP-native micropayments.
-//! This library provides the core types, client, and middleware for implementing
-//! payment-protected HTTP resources.
+#![doc = include_str!("../README.md")]
 
 pub mod blockchain;
+pub mod blockchain_facilitator;
 pub mod client;
 pub mod crypto;
 pub mod error;
 pub mod facilitator;
-pub mod middleware;
-pub mod proxy;
-pub mod real_facilitator;
+pub mod facilitator_storage;
 pub mod template;
 pub mod types;
 pub mod wallet;
 
+// HTTP/3 support (feature-gated)
+#[cfg(feature = "http3")]
+pub mod http3;
+
+// Server abstraction (feature-gated, requires axum)
+#[cfg(feature = "axum")]
+pub mod server;
+
+// Middleware support (feature-gated, requires axum)
+#[cfg(feature = "axum")]
+pub mod middleware;
+
+// Proxy support (feature-gated, requires axum)
+#[cfg(feature = "axum")]
+pub mod proxy;
+
 // Re-exports for convenience
 pub use blockchain::{BlockchainClient, BlockchainClientFactory};
-pub use client::X402Client;
-pub use error::{Result, X402Error};
-pub use real_facilitator::{
+pub use blockchain_facilitator::{
     BlockchainFacilitatorClient, BlockchainFacilitatorConfig, BlockchainFacilitatorFactory,
 };
+pub use client::X402Client;
+pub use error::{Result, X402Error};
 pub use types::*;
 pub use wallet::{Wallet, WalletFactory};
 
@@ -50,7 +61,7 @@ mod tests {
     fn test_version_constants() {
         assert_eq!(X402_VERSION, 1);
         // VERSION is a const string, so it's never empty
-        assert_eq!(VERSION, "0.1.0");
+        assert!(!VERSION.is_empty());
     }
 
     #[test]

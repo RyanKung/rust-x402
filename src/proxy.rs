@@ -299,6 +299,25 @@ async fn proxy_handler(
     State(state): State<ProxyState>,
     request: axum::extract::Request,
 ) -> std::result::Result<Response, StatusCode> {
+    #[cfg(feature = "streaming")]
+    {
+        proxy_handler_with_streaming(State(state), request).await
+    }
+    #[cfg(not(feature = "streaming"))]
+    {
+        proxy_handler_without_streaming(State(state), request).await
+    }
+}
+
+#[cfg(feature = "streaming")]
+async fn proxy_handler_with_streaming(
+    State(state): State<ProxyState>,
+    request: axum::extract::Request,
+) -> std::result::Result<Response, StatusCode> {
+    use axum::body::Body;
+    use futures_util::{StreamExt, TryStreamExt};
+    use reqwest::Body as ReqwestBody;
+
     let target_url = &state.config.target_url;
     let client = &state.client;
 
@@ -331,7 +350,131 @@ async fn proxy_handler(
         }
     }
 
-    // Copy request body if present
+    // Handle request body with streaming support
+    let (parts, body) = request.into_parts();
+
+    // Check if this is a multipart or streaming request
+    let content_type = parts
+        .headers
+        .get("content-type")
+        .and_then(|v| v.to_str().ok());
+
+    let is_multipart = content_type
+        .map(|ct| ct.starts_with("multipart/"))
+        .unwrap_or(false);
+    let is_streaming = parts
+        .headers
+        .get("transfer-encoding")
+        .and_then(|v| v.to_str().ok())
+        .map(|v| v.contains("chunked"))
+        .unwrap_or(false);
+
+    if is_multipart || is_streaming {
+        // For multipart or streaming requests, stream the body
+        let body_stream = body.into_data_stream();
+        let reqwest_body = ReqwestBody::wrap_stream(body_stream);
+        target_request = target_request.body(reqwest_body);
+    } else {
+        // For regular requests, buffer the body
+        let body_bytes = body
+            .into_data_stream()
+            .try_fold(Vec::new(), |mut acc, chunk| async move {
+                acc.extend_from_slice(&chunk);
+                Ok::<_, axum::Error>(acc)
+            })
+            .await
+            .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+        if !body_bytes.is_empty() {
+            target_request = target_request.body(body_bytes);
+        }
+    }
+
+    // Execute the request
+    let response = target_request.send().await.map_err(|e| {
+        warn!("Failed to execute proxy request: {}", e);
+        StatusCode::BAD_GATEWAY
+    })?;
+
+    // Convert response
+    let status = response.status();
+    let headers = response.headers().clone();
+
+    // Check if response is streaming
+    let response_is_streaming = headers
+        .get("transfer-encoding")
+        .and_then(|v| v.to_str().ok())
+        .map(|v| v.contains("chunked"))
+        .unwrap_or(false);
+
+    let mut response_builder = Response::builder().status(status);
+
+    // Copy response headers
+    for (key, value) in headers.iter() {
+        if let Ok(header_name) = HeaderName::try_from(key.as_str()) {
+            response_builder = response_builder.header(header_name, value);
+        }
+    }
+
+    if response_is_streaming {
+        // Stream the response body
+        let response_stream = response
+            .bytes_stream()
+            .map(|result| result.map_err(axum::Error::new));
+        let body = Body::from_stream(response_stream);
+        response_builder
+            .body(body)
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    } else {
+        // Buffer the response body
+        let body = response
+            .bytes()
+            .await
+            .map_err(|_| StatusCode::BAD_GATEWAY)?;
+        response_builder
+            .body(body.into())
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}
+
+#[cfg(not(feature = "streaming"))]
+async fn proxy_handler_without_streaming(
+    State(state): State<ProxyState>,
+    request: axum::extract::Request,
+) -> std::result::Result<Response, StatusCode> {
+    let target_url = &state.config.target_url;
+    let client = &state.client;
+
+    // Extract the path from the request
+    let path = request.uri().path();
+    let query = request.uri().query().unwrap_or("");
+
+    // Build the target URL
+    let full_url = if query.is_empty() {
+        format!("{}{}", target_url, path)
+    } else {
+        format!("{}{}?{}", target_url, path, query)
+    };
+
+    info!("Proxying request to: {}", full_url);
+
+    // Create a new request to the target server
+    let method =
+        Method::from_str(request.method().as_str()).map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    let mut target_request = client.request(method, &full_url);
+
+    // Copy essential headers
+    target_request = copy_essential_headers(request.headers(), target_request);
+
+    // Add custom headers from config
+    for (key, value) in &state.config.headers {
+        if let (Ok(name), Ok(val)) = (HeaderName::try_from(key), HeaderValue::try_from(value)) {
+            target_request = target_request.header(name, val);
+        }
+    }
+
+    // Copy request body (must buffer since streaming not available)
     let body = axum::body::to_bytes(request.into_body(), usize::MAX)
         .await
         .map_err(|_| StatusCode::BAD_REQUEST)?;
@@ -501,5 +644,89 @@ mod tests {
             "0x1234567890123456789012345678901234567890"
         );
         assert!(payment_config.testnet);
+    }
+
+    #[test]
+    fn test_copy_essential_headers() {
+        use axum::http::HeaderMap;
+
+        let mut headers = HeaderMap::new();
+        headers.insert("user-agent", "test-agent".parse().unwrap());
+        headers.insert("accept", "application/json".parse().unwrap());
+        headers.insert("content-type", "multipart/form-data".parse().unwrap());
+        headers.insert("authorization", "Bearer token123".parse().unwrap());
+
+        let client = reqwest::Client::new();
+        let request = client.get("https://example.com");
+
+        // Just verify the function doesn't panic
+        let _result = copy_essential_headers(&headers, request);
+
+        // Test with empty headers
+        let empty_headers = HeaderMap::new();
+        let client2 = reqwest::Client::new();
+        let request2 = client2.get("https://example.com");
+        let _result2 = copy_essential_headers(&empty_headers, request2);
+    }
+
+    #[test]
+    fn test_proxy_config_validation_missing_pay_to() {
+        let config = ProxyConfig {
+            target_url: "https://example.com".to_string(),
+            pay_to: String::new(), // Empty pay_to
+            ..Default::default()
+        };
+
+        let result = config.validate();
+        assert!(
+            result.is_err(),
+            "Config without pay_to address should fail validation"
+        );
+
+        let error_msg = result.unwrap_err().to_string();
+        assert!(
+            error_msg.contains("PAY_TO") || error_msg.contains("pay_to"),
+            "Error should mention PAY_TO - actual: {}",
+            error_msg
+        );
+    }
+
+    #[test]
+    fn test_proxy_config_validation_invalid_amount() {
+        let config = ProxyConfig {
+            target_url: "https://example.com".to_string(),
+            pay_to: "0x1234567890123456789012345678901234567890".to_string(),
+            amount: -0.001, // Negative amount
+            ..Default::default()
+        };
+
+        let result = config.validate();
+        assert!(
+            result.is_err(),
+            "Config with negative amount should fail validation"
+        );
+
+        let error_msg = result.unwrap_err().to_string();
+        assert!(
+            error_msg.contains("AMOUNT") || error_msg.contains("positive"),
+            "Error should mention AMOUNT or positive - actual: {}",
+            error_msg
+        );
+    }
+
+    #[test]
+    fn test_proxy_config_validation_zero_amount() {
+        let config = ProxyConfig {
+            target_url: "https://example.com".to_string(),
+            pay_to: "0x1234567890123456789012345678901234567890".to_string(),
+            amount: 0.0, // Zero amount
+            ..Default::default()
+        };
+
+        let result = config.validate();
+        assert!(
+            result.is_err(),
+            "Config with zero amount should fail validation"
+        );
     }
 }

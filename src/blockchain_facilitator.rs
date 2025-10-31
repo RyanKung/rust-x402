@@ -1,9 +1,9 @@
-//! Real facilitator client implementation
+//! Blockchain facilitator client implementation
 //!
 //! This module provides a production-ready facilitator client that:
-//! - Communicates with real blockchain networks
-//! - Performs actual transaction verification
-//! - Handles real settlement processes
+//! - Communicates directly with blockchain networks via RPC
+//! - Performs on-chain transaction verification
+//! - Handles blockchain settlement processes
 //! - Provides comprehensive error handling
 
 use crate::{
