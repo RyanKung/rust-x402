@@ -1,7 +1,7 @@
 # x402 Rust Implementation
 
 <div align="center">
-  <img src="logo-ethglobal.png" alt="x402 Logo" width="200">
+  <img src="logo-ethglobal.png" alt="x402 Logo" width="500">
 </div>
 
 <div align="center">
